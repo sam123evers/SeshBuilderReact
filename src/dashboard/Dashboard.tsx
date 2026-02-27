@@ -1,15 +1,5 @@
-import {
-  useQuery,
-  // useMutation,
-  // useQueryClient,
-  // QueryClient,
-  // QueryClientProvider,
-} from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import {useState, useEffect, MouseEventHandler} from 'react';
-// import type {} from '@mui/x-date-pickers/themeAugmentation';
-// import type {} from '@mui/x-charts/themeAugmentation';
-// import type {} from '@mui/x-data-grid-pro/themeAugmentation';
-// import type {} from '@mui/x-tree-view/themeAugmentation';
 import { alpha } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -21,8 +11,6 @@ import SideMenu from './components/SideMenu';
 import AppTheme from '../shared-theme/AppTheme';
 
 import { ISession } from '../shared/declared-types.tsx'
-
-
 
 export default function Dashboard(props: { disableCustomTheme?: boolean }) {
   const [allSessions, setAllSessions] = useState<ISession[]>([]);
@@ -84,7 +72,6 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
   
   return (
     <AppTheme {...props}>
-    {/* <AppTheme {...props} themeComponents={xThemeComponents}>*/}
       <CssBaseline enableColorScheme />
       <Box sx={{ display: 'flex' }}>
         <SideMenu sessiondata={sessionData} selectsession={setSelectedSession} setSessionName={setSessionName}/>

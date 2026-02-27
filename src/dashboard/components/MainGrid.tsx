@@ -75,7 +75,7 @@ export default function MainGrid({
             Add Pose To Sequence
           </Typography>
         </Box>
-      <AddPoseToSequenceModal closePoseToSequenceModal={handleClosePoseToSeqClick} />
+      <AddPoseToSequenceModal sessionName={sessionName} closePoseToSequenceModal={handleClosePoseToSeqClick} />
       <Copyright sx={{ my: 4 }} />
     </Box>
     )

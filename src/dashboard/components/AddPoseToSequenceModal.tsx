@@ -1,7 +1,8 @@
-import {ChangeEvent, MouseEventHandler, useEffect, useState} from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { ChangeEvent, MouseEventHandler, useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+    Autocomplete,
     Box,
     Button, 
     Card, 
@@ -9,9 +10,17 @@ import {
     TextField,
     Typography
 } from '@mui/material';
+import { IPose } from '../../shared/declared-types';
 
 interface IPoseModalProps {
+    sessionName: string;
     closePoseToSequenceModal: MouseEventHandler
+}
+
+interface IAutocompleteOption {
+  id: number;
+  label: string;
+  photo: string;
 }
 
 // import this?
@@ -20,11 +29,12 @@ interface IPoseData {
     photoUrl: string | undefined;
 }
 
-export default function AddPoseToSequenceModal({closePoseToSequenceModal}: IPoseModalProps) {
+// we need a list of poses from the db in this component
+
+export default function AddPoseToSequenceModal({sessionName, closePoseToSequenceModal}: IPoseModalProps) {
     const queryClient = useQueryClient();
-    // const [poseName, setPoseName] = useState<string>();
-    // const [photoUrl, setPicUrl] = useState<string>();
-    // const [isPicSet, toggleIsPicSet] = useState<boolean>(false);
+    const [selectedPose, setSelectedPose] = useState<string>();
+    const [poseAutocompleteOptions, setPoseAutocompleteOptions] = useState<IAutocompleteOption[]>([]);
 
     // const setUrlFromInput = (event: ChangeEvent<HTMLInputElement>) => {
     //     setPicUrl(event.target.value);
@@ -38,35 +48,32 @@ export default function AddPoseToSequenceModal({closePoseToSequenceModal}: IPose
         // mutation.mutate({poseName, photoUrl});
     }
 
-    // useEffect(() => {
-    //     if(photoUrl === undefined || photoUrl === '') {
-    //         toggleIsPicSet(false);
-    //     } else {
-    //         toggleIsPicSet(true);
-    //     }
-    // }, [photoUrl]);
+    const { data: poseListData } = useQuery({
+        queryKey: ['allPoses'],
+        queryFn: async () => {
+        const response = await fetch(
+            `https://localhost:7122/api/Pose/GetPoses`,
+        )
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`)
+        }
+            return await response.json();  
+        },
+        // enabled: sessionId !== null
+    });
 
-    // const mutation = useMutation({
-    //     mutationFn: async (newPoseData: PoseData) => {
-    //         const response = await fetch(
-    //             `https://localhost:7122/api/Pose/CreatePose`, {
-    //                 method: 'POST',
-    //                 headers: {'Content-Type': 'application/json'},
-    //                 body: JSON.stringify(newPoseData)
-    //             }
-    //         );
-    //         return await response.json()
-    //     },
-    //     onSuccess: () => {
-    //     // Invalidate and refetch queries after a successful mutation
-    //         queryClient.invalidateQueries({ queryKey: ['poses'] });
-    //         alert('Post created successfully!');
-    //     },
-    //     onError: (error) => {
-    //         console.error('Error creating new pose:', error);
-    //         alert('Failed to create pose.');
-    //     },
-    // });
+    useEffect(() => {
+        if (poseListData) {
+            const mappedList: IAutocompleteOption[] = poseListData.map((poseObj: IPose) => {
+                return {
+                    id: poseObj.poseId,
+                    label: poseObj.poseName,
+                    photo: poseObj.photoUrl
+                }
+      });
+      setPoseAutocompleteOptions(mappedList)
+    }
+  }, [poseListData]);
 
     return (
         <Box
@@ -77,69 +84,27 @@ export default function AddPoseToSequenceModal({closePoseToSequenceModal}: IPose
                 height: '100vh'
             }}
         >
-            <Card sx={{ minWidth: 275 }}>
+            <Card sx={{ width: '20vw' }}>
                 <CardContent>
                     <Typography variant="h5" component="div">
-                        Add Pose To Sequence
+                        Add Pose To <br/> {sessionName} <br/>
                     </Typography>
                     <Box>
-                        {/* <Box sx={{ 
+                        <Box sx={{ 
                                     '& .MuiTextField-root': { m: 1, width: '45ch' },
                                     display: 'flex',
                                     flexDirection: 'column',
                                     justifyContent: 'space-between'
                                 }}
                         >
-                            <TextField 
-                                required 
-                                id="pose-name" 
-                                label="Pose Name" 
-                                variant="outlined" 
-                                value={poseName}
-                                onChange={setPoseNameFromInput}
+                            <Autocomplete
+                                disablePortal
+                                options={poseAutocompleteOptions}
+                                getOptionLabel={(option) => option.label}
+                                sx={{ width: 300 }}
+                                renderInput={(params) => <TextField {...params} label="Poses" />}
                             />
-                            <TextField 
-                                required id="photo-url-upload"
-                                label="Photo URL"
-                                variant="outlined"
-                                value={photoUrl}
-                                onChange={setUrlFromInput}
-                            />
-                            <TextField id="variant" label="Variant" variant="outlined" />
-                            <TextField id="difficulty" label="Difficulty" variant="outlined" />
-                            <TextField id="breath-tech" label="Breathing Technique" variant="outlined" />
                         </Box>
-                        {isPicSet && <Box sx={{ 
-                                    display: 'flex',
-                                    justifyContent: 'center'
-                                }}
-                        >
-                            <img src={photoUrl} style={{marginLeft: '15em', marginRight: '15em'}}/>
-                        </Box>}
-                        <Box sx={{ 
-                                    display: 'flex',
-                                    justifyContent: 'space-between'
-                                }}>
-                            <Box sx={{ 
-                                    '& .MuiTextField-root': { m: 1, width: '25ch' },
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between'
-                                }}
-                            >
-                                <TextField id="target-area-input" label="Target Area" variant="outlined" />
-                                <TextField id="benefit-input" label="Benefit" variant="outlined" />
-                            </Box>
-                            <Box sx={{ 
-                                    '& .MuiTextField-root': { m: 1, width: '25ch' },
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between'
-                                }}
-                            >
-                                <TextField id="variations" label="Variations" variant="outlined" />
-                            </Box>
-                        </Box> */}
                     </Box>
                 </CardContent>
                 <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
