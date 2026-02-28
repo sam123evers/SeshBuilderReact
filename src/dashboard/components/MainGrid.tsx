@@ -1,4 +1,4 @@
-import {MouseEventHandler} from 'react';
+import {MouseEventHandler, useState} from 'react';
 import {
   Box,
   Button,
@@ -41,12 +41,17 @@ export default function MainGrid({
   closePoseCreateModal,
   closeSequenceCreateModal
 }: IMainGridProps) {
+  // could we make a TS interface and set both of these at once?
+  const [selectedSeqId, setSelectedSeqId] = useState<number>(-1);
+  const [selectedSeqName, setSelectedSeqName] = useState<string>("");
 
   const handleAddSequenceModalClick = () => {
     toggleShowSequenceModal(true);
   }
 
-  const handleAddPoseToSeqModalClick = () => {
+  const handleAddPoseToSeqModalClick = (seqId: number, seqName:string) => {
+    setSelectedSeqId(seqId);
+    setSelectedSeqName(seqName);
     toggleShowAddPoseToSeqModal(true);
   }
 
@@ -61,7 +66,6 @@ export default function MainGrid({
           <Typography component="h2" variant="h6" sx={{ mb: 2, width: '100%', fontSize: 'x-large' }}>
             Add Pose
           </Typography>
-          {/* <Button variant="contained" sx={{ mb: 2, height: '30px', minWidth: '40px' }} onClick={handleAddSequenceModalClick}>+</Button> */}
         </Box>
       <AddPoseModal closePoseCreateModal={closePoseCreateModal}/>
       <Copyright sx={{ my: 4 }} />
@@ -75,7 +79,7 @@ export default function MainGrid({
             Add Pose To Sequence
           </Typography>
         </Box>
-      <AddPoseToSequenceModal sessionName={sessionName} closePoseToSequenceModal={handleClosePoseToSeqClick} />
+      <AddPoseToSequenceModal sessionName={sessionName} seqId={selectedSeqId} seqName={selectedSeqName} closePoseToSequenceModal={handleClosePoseToSeqClick} />
       <Copyright sx={{ my: 4 }} />
     </Box>
     )
@@ -117,7 +121,7 @@ export default function MainGrid({
                       }}
                     />
                 </ListItemButton>
-                <PoseImageList poses={seq.poses} openAddPoseToSequenceModal={handleAddPoseToSeqModalClick}/>
+                <PoseImageList seqId={seq.sequenceId} seqName={seq.sequenceName} poses={seq.poses} openAddPoseToSequenceModal={handleAddPoseToSeqModalClick}/>
               </ListItem>
             ))}
           </List>

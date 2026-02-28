@@ -16,6 +16,9 @@ A Session is a list of sequences and a sequence is a list of poses
 ## How to use
 Install and run:
 
+You will need the backend and database for this to work properly.
+For now, this is only a code repository to sample some React code that I am working on.
+
 ```bash
 npm install
 npm run dev

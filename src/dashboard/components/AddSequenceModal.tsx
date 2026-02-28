@@ -30,8 +30,6 @@ export default function AddPoseModal({sessionId, sessionName, closeSequenceCreat
     }
 
     const submitAddSequence = () => {
-        console.log("sessionId: ", sessionId);
-        console.log("sequenceName: ", sequenceName);
         const payload: ISequenceCreate = {
             sessionId: sessionId,
             sequenceName: sequenceName
@@ -53,6 +51,7 @@ export default function AddPoseModal({sessionId, sessionName, closeSequenceCreat
         },
         onSuccess: () => {
             // Invalidate and refetch queries after a successful mutation
+            // what does this mean exactly???
             queryClient.invalidateQueries({ queryKey: ['sequences'] });
             alert('Added Sequence to Session created successfully!');
         },

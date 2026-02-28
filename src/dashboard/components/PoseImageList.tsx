@@ -1,13 +1,20 @@
-import { MouseEventHandler } from "react";
+// import { MouseEventHandler } from "react";
 import { Box, Button, ImageList, ImageListItem, ImageListItemBar } from "@mui/material";
 import { IPose } from '../../shared/declared-types.tsx';
 
 interface IPoseImageListProps {
-  poses: IPose[];
-  openAddPoseToSequenceModal: MouseEventHandler;
+    seqId: number;
+    seqName: string;
+    poses: IPose[];
+    openAddPoseToSequenceModal: Function;
 }
 
-export default function PoseImageList({poses = [], openAddPoseToSequenceModal}: IPoseImageListProps) {
+export default function PoseImageList({
+    seqId,
+    seqName,
+    poses = [],
+    openAddPoseToSequenceModal
+}: IPoseImageListProps) {
     if(poses.length > 0) {
         return(
             <ImageList rowHeight={150} sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', p: 1, justifyContent: 'center' }}>
@@ -28,7 +35,7 @@ export default function PoseImageList({poses = [], openAddPoseToSequenceModal}: 
     } else {
         return (
             <Box sx={{marginTop: '10px', display:'flex', justifyContent: 'center'}}>
-                <Button onClick={openAddPoseToSequenceModal}>+ Add Pose to Sequence</Button>
+                <Button onClick={() => openAddPoseToSequenceModal(seqId, seqName)}>+ Add Pose to Sequence</Button>
             </Box>
         )
     }
