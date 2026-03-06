@@ -120,6 +120,7 @@ export default function MainGrid({
                         },
                       }}
                     />
+                    <Button onClick={() => handleAddPoseToSeqModalClick(seq.sequenceId, seq.sequenceName)}>+ Add Pose</Button>
                 </ListItemButton>
                 <PoseImageList seqId={seq.sequenceId} seqName={seq.sequenceName} poses={seq.poses} openAddPoseToSequenceModal={handleAddPoseToSeqModalClick}/>
               </ListItem>

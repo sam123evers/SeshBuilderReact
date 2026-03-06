@@ -23,6 +23,9 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
   const setSelectedSession = (sessionId: number, sessionName: string) => {
     setSessionId(sessionId);
     setSessionName(sessionName);
+    toggleShowSequenceModal(false);
+    toggleShowPoseModal(false);
+    toggleShowAddPoseToSeqModal(false);
   }
 
   const handlePoseModalClick = () => {
@@ -69,7 +72,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
     },
     enabled: sessionId !== null
   });
-  
+
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />

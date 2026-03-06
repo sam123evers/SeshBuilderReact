@@ -50,6 +50,7 @@ export default function AddPoseToSequenceModal({
 
     const handleChange = (e: ChangeEvent, value: IAutocompleteOption) => {
         e.preventDefault();
+        console.log("handle change: ", value)
         setSelectedPoseObj(value);
     };
 
