@@ -6,7 +6,6 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import SessionListMenu from './SessionListMenu';
-// import CardAlert from './CardAlert';
 import OptionsMenu from './OptionsMenu';
 import { ISession } from '../../shared/declared-types';
 
@@ -60,7 +59,11 @@ export default function SideMenu({sessiondata = [], selectsession, setSessionNam
           flexDirection: 'column',
         }}
       >
-        <SessionListMenu sessions={sessiondata} selectSesh={selectsession} setSessionName={setSessionName}/>
+        <SessionListMenu 
+          sessions={sessiondata}
+          selectSesh={selectsession}
+          setSessionName={setSessionName}
+        />
       </Box>
       <Stack
         direction="row"

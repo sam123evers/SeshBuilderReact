@@ -10,11 +10,14 @@ import {
   Stack
 } from '@mui/material';
 import Copyright from '../internals/components/Copyright';
-import {ISequence} from '../../shared/declared-types';
 import AddPoseModal from './AddPoseModal';
 import AddSequenceModal from './AddSequenceModal';
 import AddPoseToSequenceModal from './AddPoseToSequenceModal';
 import PoseImageList from './PoseImageList';
+import ConfirmDeletePoseFromSequence from './ConfirmDeletePoseFromSequence';
+
+import {ISequence, IDeletePoseFromSequencePayload} from '../../shared/declared-types';
+
 
 interface IMainGridProps {
   sessionId: number;
@@ -27,6 +30,7 @@ interface IMainGridProps {
   seshSequences: ISequence[];
   closePoseCreateModal: MouseEventHandler;
   closeSequenceCreateModal: MouseEventHandler;
+  retriggerSessionData: Function;
 }
 
 export default function MainGrid({
@@ -39,11 +43,20 @@ export default function MainGrid({
   renderAddPoseToSequenceModal,
   seshSequences = [],
   closePoseCreateModal,
-  closeSequenceCreateModal
+  closeSequenceCreateModal,
+  retriggerSessionData,
 }: IMainGridProps) {
+
   // could we make a TS interface and set both of these at once?
   const [selectedSeqId, setSelectedSeqId] = useState<number>(-1);
   const [selectedSeqName, setSelectedSeqName] = useState<string>("");
+  const [showConfirmDelete, toggleShowConfirmDelete] = useState<boolean>(false);
+  const [deletePosePayload, setDeletePosePayload] = useState<IDeletePoseFromSequencePayload>({
+    sequenceName: "",
+    poseName: "",
+    sequencePoseId: -1
+  });
+  
 
   const handleAddSequenceModalClick = () => {
     toggleShowSequenceModal(true);
@@ -79,7 +92,14 @@ export default function MainGrid({
             Add Pose To Sequence
           </Typography>
         </Box>
-      <AddPoseToSequenceModal sessionName={sessionName} seqId={selectedSeqId} seqName={selectedSeqName} closePoseToSequenceModal={handleClosePoseToSeqClick} />
+      <AddPoseToSequenceModal
+        // sessionId={sessionId} 
+        sessionName={sessionName}
+        seqId={selectedSeqId}
+        seqName={selectedSeqName}
+        closePoseToSequenceModal={handleClosePoseToSeqClick}
+        refreshSessionData={retriggerSessionData}
+      />
       <Copyright sx={{ my: 4 }} />
     </Box>
     )
@@ -91,13 +111,22 @@ export default function MainGrid({
             Create Sequence
           </Typography>
         </Box>
-        <AddSequenceModal closeSequenceCreateModal={closeSequenceCreateModal} sessionId={sessionId} sessionName={sessionName}/>
+        <AddSequenceModal
+          closeSequenceCreateModal={closeSequenceCreateModal}
+          sessionId={sessionId}
+          sessionName={sessionName}
+        />
         <Copyright sx={{ my: 4 }} />
       </Box>
     )
   } else if (seshSequences.length > 0) {
     return (
-      <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
+      <Box sx={{ position: 'relative', width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
+        {showConfirmDelete && <ConfirmDeletePoseFromSequence 
+                                  deletePayload={deletePosePayload}
+                                  toggleConfirmDelete={toggleShowConfirmDelete}
+                                  refreshSessionData={retriggerSessionData}
+                              />}
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',width: '100%', maxWidth: { sm: '100%', md: '10%' } }}>
           <Typography component="h2" variant="h6" sx={{ mb: 2, width: '100%', fontSize: 'x-large' }}>
             Sequences
@@ -122,7 +151,14 @@ export default function MainGrid({
                     />
                     <Button onClick={() => handleAddPoseToSeqModalClick(seq.sequenceId, seq.sequenceName)}>+ Add Pose</Button>
                 </ListItemButton>
-                <PoseImageList seqId={seq.sequenceId} seqName={seq.sequenceName} poses={seq.poses} openAddPoseToSequenceModal={handleAddPoseToSeqModalClick}/>
+                <PoseImageList 
+                  seqId={seq.sequenceId}
+                  seqName={seq.sequenceName}
+                  poses={seq.poses}
+                  openAddPoseToSequenceModal={handleAddPoseToSeqModalClick}
+                  toggleConfirmDelete={toggleShowConfirmDelete}
+                  setDeletePayload={setDeletePosePayload}
+                />
               </ListItem>
             ))}
           </List>

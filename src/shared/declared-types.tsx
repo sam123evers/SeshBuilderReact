@@ -2,6 +2,7 @@ export interface IPose {
   poseId: number;
   poseName: string;
   photoUrl: string;
+  sequencePoseId: number;
 }
 
 export interface ISequence {
@@ -16,4 +17,10 @@ export interface ISession {
   sessionName: string;
   sessionAlternateName: string | undefined;
   sequences: ISequence[] | undefined;
+}
+
+export interface IDeletePoseFromSequencePayload {
+  sequenceName: string;
+  poseName: string;
+  sequencePoseId: number;
 }

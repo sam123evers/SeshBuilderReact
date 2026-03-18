@@ -59,7 +59,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
     }
   }, [allSessions]);
 
-  const { data: seqAndPoseData } = useQuery({
+  const { data: seqAndPoseData, refetch } = useQuery({
     queryKey: ['sequenceAndPoseData', sessionId],
     queryFn: async () => {
       const response = await fetch(
@@ -73,11 +73,19 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
     enabled: sessionId !== null
   });
 
+  const refreshSessionData = () => {
+    refetch();
+  }
+
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
       <Box sx={{ display: 'flex' }}>
-        <SideMenu sessiondata={sessionData} selectsession={setSelectedSession} setSessionName={setSessionName}/>
+        <SideMenu 
+          sessiondata={sessionData} 
+          selectsession={setSelectedSession}
+          setSessionName={setSessionName}
+        />
         <AppNavbar />
         <Box
           component="main"
@@ -102,6 +110,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
             <MainGrid
               sessionId={sessionId}
               sessionName={sessionName}
+              retriggerSessionData={refreshSessionData}
               toggleShowSequenceModal={toggleShowSequenceModal}
               renderSequenceModal={shouldShowSequenceModal}
               closeSequenceCreateModal={closeSequenceCreateModal}

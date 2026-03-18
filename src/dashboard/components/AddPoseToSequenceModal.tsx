@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEventHandler, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -16,7 +16,8 @@ interface IPoseModalProps {
     sessionName: string;
     seqId: number;
     seqName: string;
-    closePoseToSequenceModal: MouseEventHandler
+    closePoseToSequenceModal: Function;
+    refreshSessionData: Function;
 }
 
 interface IAddPoseToSeq {
@@ -30,19 +31,12 @@ interface IAutocompleteOption {
   photo: string;
 }
 
-// import this?
-interface IPoseData {
-    poseName: string | undefined;
-    photoUrl: string | undefined;
-}
-
-// we need a list of poses from the db in this component
-
 export default function AddPoseToSequenceModal({
     sessionName,
     seqId,
     seqName,
-    closePoseToSequenceModal
+    closePoseToSequenceModal,
+    refreshSessionData
 }: IPoseModalProps) {
     const queryClient = useQueryClient();
     const [selectedPoseObj, setSelectedPoseObj] = useState<IAutocompleteOption>({id:-1, label: "None", photo: "None"});
@@ -50,13 +44,10 @@ export default function AddPoseToSequenceModal({
 
     const handleChange = (e: ChangeEvent, value: IAutocompleteOption) => {
         e.preventDefault();
-        console.log("handle change: ", value)
         setSelectedPoseObj(value);
     };
 
     const submitAddPoseToSequence = () => {
-        console.log("sequenceId: ", seqId);
-        console.log("poseId: ", selectedPoseObj.id)
         const payload: IAddPoseToSeq = {
             sequenceId: seqId,
             poseId: selectedPoseObj.id
@@ -91,7 +82,10 @@ export default function AddPoseToSequenceModal({
             onSuccess: () => {
                 // Invalidate and refetch queries after a successful mutation
                 queryClient.invalidateQueries({ queryKey: ['sequences'] });
-                alert('Added Pose To Sequence successfully!');
+                // alert('Added Pose To Sequence successfully!');
+                // close the modal and reload session data
+                closePoseToSequenceModal();
+                refreshSessionData();
             },
             onError: (error) => {
                 console.error('Error creating new sequence:', error);
@@ -113,18 +107,16 @@ export default function AddPoseToSequenceModal({
   }, [poseListData]);
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh'
-            }}
-        >
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh'
+        }}>
             <Card sx={{ width: '20vw' }}>
                 <CardContent>
                     <Typography variant="h5" component="div">
-                        Add Pose To <br/> {sessionName} <br/> {seqName}
+                        Add Pose To <br/> {sessionName} <br/> {seqName} <br/>
                     </Typography>
                     <Box>
                         <Box sx={{ 
@@ -146,7 +138,7 @@ export default function AddPoseToSequenceModal({
                     </Box>
                 </CardContent>
                 <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
-                    <Button variant="contained" size="small" onClick={closePoseToSequenceModal}>
+                    <Button variant="contained" size="small" onClick={() => closePoseToSequenceModal}>
                         Cancel
                     </Button>
                     <Button variant="contained" size="small" onClick={submitAddPoseToSequence}>
