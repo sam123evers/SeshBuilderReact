@@ -1,14 +1,19 @@
 import {MouseEventHandler, useState} from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box,
   Button,
+  // Icon,
   Typography,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
-  Stack
+  Stack,
+  Menu,
+  MenuItem
 } from '@mui/material';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import Copyright from '../internals/components/Copyright';
 import AddPoseModal from './AddPoseModal';
 import AddSequenceModal from './AddSequenceModal';
@@ -29,7 +34,7 @@ interface IMainGridProps {
   renderAddPoseToSequenceModal: boolean;
   seshSequences: ISequence[];
   closePoseCreateModal: MouseEventHandler;
-  closeSequenceCreateModal: MouseEventHandler;
+  closeSequenceCreateModal: Function;
   retriggerSessionData: Function;
 }
 
@@ -56,16 +61,60 @@ export default function MainGrid({
     poseName: "",
     sequencePoseId: -1
   });
-  
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  
   const handleAddSequenceModalClick = () => {
     toggleShowSequenceModal(true);
   }
 
   const handleAddPoseToSeqModalClick = (seqId: number, seqName:string) => {
+    setAnchorEl(null);
     setSelectedSeqId(seqId);
     setSelectedSeqName(seqName);
     toggleShowAddPoseToSeqModal(true);
+  }
+
+  const queryClient = useQueryClient();
+
+  const deleteSequenceMutation = useMutation({
+    mutationFn: async (sequenceId: number) => {
+      const response = await fetch(
+        `https://localhost:7122/api/Session/RemoveSequence/${sequenceId}`,
+        {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete sequence: ${response.status}`);
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sequences'] });
+      retriggerSessionData();
+      alert('Sequence deleted successfully.');
+    },
+    onError: (error) => {
+      console.error('Error deleting sequence:', error);
+      alert('Failed to delete sequence.');
+    },
+  });
+
+  const handleDeleteSequence = (sequenceId: number) => {
+    setAnchorEl(null);
+    deleteSequenceMutation.mutate(sequenceId);
   }
 
   const handleClosePoseToSeqClick = () => {
@@ -122,11 +171,13 @@ export default function MainGrid({
   } else if (seshSequences.length > 0) {
     return (
       <Box sx={{ position: 'relative', width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
-        {showConfirmDelete && <ConfirmDeletePoseFromSequence 
-                                  deletePayload={deletePosePayload}
-                                  toggleConfirmDelete={toggleShowConfirmDelete}
-                                  refreshSessionData={retriggerSessionData}
-                              />}
+        {showConfirmDelete && 
+            <ConfirmDeletePoseFromSequence 
+              deletePayload={deletePosePayload}
+              toggleConfirmDelete={toggleShowConfirmDelete}
+              refreshSessionData={retriggerSessionData}
+            />
+        }
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',width: '100%', maxWidth: { sm: '100%', md: '10%' } }}>
           <Typography component="h2" variant="h6" sx={{ mb: 2, width: '100%', fontSize: 'x-large' }}>
             Sequences
@@ -149,7 +200,32 @@ export default function MainGrid({
                         },
                       }}
                     />
-                    <Button onClick={() => handleAddPoseToSeqModalClick(seq.sequenceId, seq.sequenceName)}>+ Add Pose</Button>
+                    <div>
+                      <Button
+                        id="basic-button"
+                        aria-controls={open ? 'basic-menu' : undefined}
+                        aria-haspopup="true"
+                        aria-expanded={open ? 'true' : undefined}
+                        onClick={handleClick}
+                      >
+                        <MoreHorizIcon fontSize="large"/>
+                      </Button>
+                      <Menu
+                        id="basic-menu"
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        slotProps={{
+                          list: {
+                            'aria-labelledby': 'basic-button',
+                          },
+                        }}
+                      >
+                        <MenuItem onClick={() => handleAddPoseToSeqModalClick(seq.sequenceId, seq.sequenceName)}>Add Pose</MenuItem>
+                        <MenuItem onClick={() => handleDeleteSequence(seq.sequenceId)}>Delete Sequence</MenuItem>
+                        <MenuItem onClick={handleClose}>Edit Sequence</MenuItem>
+                      </Menu>
+                    </div>
                 </ListItemButton>
                 <PoseImageList 
                   seqId={seq.sequenceId}

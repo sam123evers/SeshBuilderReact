@@ -1,7 +1,7 @@
 import { Box, Button, IconButton, ImageList, ImageListItem, ImageListItemBar } from "@mui/material";
 import { IPose } from '../../shared/declared-types.tsx';
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+// import { useState } from "react";
+// import { useMutation } from "@tanstack/react-query";
 
 interface IPoseImageListProps {
     seqId: number;

@@ -48,7 +48,7 @@ export default function ConfirmDeletePoseFromSequence({
             position: 'absolute',
             justifySelf: 'center',
             backgroundColor: 'black',
-            top: '50vh',
+            // top: '50vh',
             zIndex: 5,
             justifyContent: 'center',
             alignItems: 'center'

@@ -13,7 +13,8 @@ import {
 interface SequenceModalProps {
     sessionId: number;
     sessionName: string;
-    closeSequenceCreateModal: MouseEventHandler
+    // closeSequenceCreateModal: MouseEventHandler
+    closeSequenceCreateModal: Function;
 }
 
 interface ISequenceCreate {
@@ -54,6 +55,9 @@ export default function AddPoseModal({sessionId, sessionName, closeSequenceCreat
             // what does this mean exactly???
             queryClient.invalidateQueries({ queryKey: ['sequences'] });
             alert('Added Sequence to Session created successfully!');
+            // close the modal
+            closeSequenceCreateModal();
+            // reload the sequences ?
         },
         onError: (error) => {
             console.error('Error creating new sequence:', error);
@@ -99,7 +103,7 @@ export default function AddPoseModal({sessionId, sessionName, closeSequenceCreat
                     </Box>
                 </CardContent>
                 <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
-                    <Button variant="contained" size="small" onClick={closeSequenceCreateModal}>
+                    <Button variant="contained" size="small" onClick={() => closeSequenceCreateModal}>
                         Cancel
                     </Button>
                     <Button variant="contained" size="small" onClick={submitAddSequence}>

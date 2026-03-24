@@ -32,7 +32,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
     toggleShowPoseModal(true)
   }
 
-  const closeSequenceCreateModal: MouseEventHandler = () => {
+  const closeSequenceCreateModal: Function = () => {
     toggleShowSequenceModal(false)
   }
 
