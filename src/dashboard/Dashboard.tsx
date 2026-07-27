@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import {useState, useEffect, MouseEventHandler} from 'react';
+import {useAuth} from '../auth/AuthContext';
 import { alpha } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -19,6 +20,8 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
   const [shouldShowSequenceModal, toggleShowSequenceModal] = useState<boolean>(false);
   const [shouldShowPoseModal, toggleShowPoseModal] = useState<boolean>(false);
   const [shouldShowAddPoseToSeqModal, toggleShowAddPoseToSeqModal] = useState<boolean>(false);
+
+  const { token } = useAuth();
 
   const setSelectedSession = (sessionId: number, sessionName: string) => {
     setSessionId(sessionId);
@@ -40,12 +43,34 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
     toggleShowPoseModal(false)
   }
 
+  const {data: currentUserData} = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const response = await fetch(
+        ' https://localhost:7122/api/User/current_user', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+
+      console.log("user Data: ", currentUserData);
+      return await response.json()
+    },
+    enabled: token !== null
+  });
+
   const { data: sessionData } = useQuery({
     queryKey: ['sessionData'],
     queryFn: async () => {
       const response = await fetch(
-        'https://localhost:7122/api/Session/GetAllSessions',
-      )
+        'https://localhost:7122/api/Session/GetAllSessions', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`)
       }
@@ -85,6 +110,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
           sessiondata={sessionData} 
           selectsession={setSelectedSession}
           setSessionName={setSessionName}
+          currentUser={currentUserData}
         />
         <AppNavbar />
         <Box

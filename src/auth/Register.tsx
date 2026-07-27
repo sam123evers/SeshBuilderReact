@@ -1,5 +1,6 @@
-// import {ChangeEvent, MouseEventHandler, useState} from 'react';
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {useState, type ChangeEvent} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {useMutation} from '@tanstack/react-query';
 
 import {
     Box,
@@ -8,45 +9,86 @@ import {
     CardContent,
     CssBaseline,
     TextField,
-    Typography,
-    // Button, 
-    // Card, 
-    // CardContent,
-    // TextField,
-    // Typography
+    Typography
 } from '@mui/material';
 import AppTheme from '../shared-theme/AppTheme';
 
-// interface PoseModalProps {
-//     closePoseCreateModal: MouseEventHandler
-// }
+interface IRegistrationData {
+    email: string | undefined;
+    password: string | undefined;
+    firstName: string | undefined;
+    lastName: string | undefined;
+}
 
 export default function Register() {
-    const queryClient = useQueryClient();
-    // const [picUrl, setPicUrl] = useState<string>();
+    const navigate = useNavigate();
+    const [registrationEmail, setRegistrationEmail] = useState<string>('');
+    const [registrationPassword, setRegistrationPassword] = useState<string>('');
+    const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [registrationFirstName, setRegistrationFirstName] = useState<string>('');
+    const [registrationLastName, setRegistrationLastName] = useState<string>('');
 
-    // const setUrlFromInput = (event: ChangeEvent<HTMLInputElement>) => {
-    //     setPicUrl(event.target.value);
-    // }
+    const handleRegistrationEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setRegistrationEmail(e.target.value);
+    }
+
+    const handleRegistrationPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setRegistrationPassword(e.target.value);
+    }
+
+    const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setConfirmPassword(e.target.value);
+    }
+
+    const handleRegistrationFirstNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setRegistrationFirstName(e.target.value);
+    }
+
+    const handleRegistrationLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setRegistrationLastName(e.target.value);
+    }
+
+    const confirmPasswordMatch = () => {
+        return registrationPassword === confirmPassword;
+    };
+
+    const createNewUser = () => {
+        if(confirmPasswordMatch()) {
+            registerUser.mutate({
+                email: registrationEmail,
+                password: registrationPassword,
+                firstName: registrationFirstName,
+                lastName: registrationLastName,
+            });
+        }
+    };
 
     const registerUser = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (newUserData: IRegistrationData) => {
         const response = await fetch(
-        'https://localhost:7122/register',
+        'https://localhost:7122/api/User/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(newUserData)
+        }
       )
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`)
       }
       return await response.json()
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       // Invalidate and refetch queries after a successful mutation
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      alert('Post created successfully!');
+      // queryClient.invalidateQueries({ queryKey: ['posts'] });
+      alert('User created successfully!');
+      const emailToPass = typeof response === 'string'
+        ? response
+        : response?.email ?? '';
+
+      navigate('/login', { state: { email: emailToPass } });
     },
     onError: (error) => {
       console.error('Error registering user:', error);
-      alert('Failed to register new user.');
     },
   });
 
@@ -86,9 +128,11 @@ export default function Register() {
                         <Typography variant="h5" component="div" sx={{alignSelf: 'flex-start'}}>
                             Create an Account
                         </Typography>
-                        <TextField required id="registration-email" label="Email" variant="outlined" />
-                        <TextField required id="registration-password" label="Password" variant="outlined" />
-                        <TextField required id="confirm-password" label="Confirm Password" variant="outlined" />
+                        <TextField required id="registration-first-name" value={registrationFirstName} label="First Name" variant="outlined" onChange={handleRegistrationFirstNameChange} />
+                        <TextField required id="registration-last-name" value={registrationLastName} label="Last Name" variant="outlined" onChange={handleRegistrationLastNameChange} />
+                        <TextField required id="registration-email" value={registrationEmail} label="Email" variant="outlined" onChange={handleRegistrationEmailChange}/>
+                        <TextField required id="registration-password" value={registrationPassword} label="Password" variant="outlined" onChange={handleRegistrationPasswordChange} />
+                        <TextField required id="confirm-password" value={confirmPassword} label="Confirm Password" variant="outlined" onChange={handleConfirmPasswordChange} />
                         <Box sx={{
                             display: 'flex',
                             flexDirection: 'row', 

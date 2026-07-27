@@ -1,7 +1,6 @@
 # SeshBuilder Web
 
-The SeshBuilder consists of the SeshBuilder and the Pose Database. Using using existing yoga sequences as a template, I've designed SeshBuilder to
-be a place where you can do 2 main things:
+The SeshBuilder consists of the SeshBuilder and the Pose Database. Using using existing yoga sequences as a template, I've designed SeshBuilder to do 2 main things:
 1) Add Poses to the pose database along with some optional criteria such as:
 - target area
 - breathing technique

@@ -24,3 +24,11 @@ export interface IDeletePoseFromSequencePayload {
   poseName: string;
   sequencePoseId: number;
 }
+
+export interface ICurrentUserData {
+  id: string | undefined;
+  userName: string | undefined;
+  email : string | undefined; 
+  firstName: string | undefined;
+  lastName: string | undefined;
+}

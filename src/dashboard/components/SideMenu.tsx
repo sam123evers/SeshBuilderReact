@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import SessionListMenu from './SessionListMenu';
 import OptionsMenu from './OptionsMenu';
-import { ISession } from '../../shared/declared-types';
+import { ICurrentUserData, ISession } from '../../shared/declared-types';
 
 const drawerWidth = 240;
 
@@ -26,9 +26,10 @@ interface ISideMenuProps {
   sessiondata: ISession[];
   selectsession: Function;
   setSessionName: Function;
+  currentUser: ICurrentUserData
 }
 
-export default function SideMenu({sessiondata = [], selectsession, setSessionName}: ISideMenuProps) {
+export default function SideMenu({sessiondata = [], selectsession, setSessionName, currentUser}: ISideMenuProps) {
   return (
     <Drawer
       variant="permanent"
@@ -77,16 +78,16 @@ export default function SideMenu({sessiondata = [], selectsession, setSessionNam
       >
         <Avatar
           sizes="small"
-          alt="Riley Carter"
+          alt={currentUser?.firstName}
           src="/static/images/avatar/7.jpg"
           sx={{ width: 36, height: 36 }}
         />
         <Box sx={{ mr: 'auto' }}>
           <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-            Riley Carter
+            {currentUser?.firstName} {currentUser?.lastName}
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            riley@email.com
+            {currentUser?.email}
           </Typography>
         </Box>
         <OptionsMenu />
